@@ -1,0 +1,15 @@
+{
+    "servers": {
+        "todo-list-mcp": {
+          "command": "docker",
+          "args": [
+            "run", "-i", "--rm",
+            "--network", "mcp-proxy-net",
+            "-v", "/Users/bcage/git/bcage29/mcp-sandbox/data/todo-list-mcp:/data",
+            "-e", "DATA_DIR=/data",
+            "--env-file", "/Users/bcage/git/bcage29/mcp-sandbox/.server-config/todo-list-mcp/.env",
+            "mcp-todo-list-mcp"
+          ]
+        }
+    }
+}

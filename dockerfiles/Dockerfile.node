@@ -1,0 +1,30 @@
+FROM node:20-alpine
+
+# Native modules (e.g. better-sqlite3) need build tools
+RUN apk add --no-cache python3 make g++
+
+# Run as non-root for security
+RUN addgroup -S mcp && adduser -S mcp -G mcp
+
+WORKDIR /app
+
+# Copy package files first for better layer caching
+COPY package*.json ./
+
+# Install dependencies
+# --ignore-scripts prevents arbitrary install-time code execution (supply chain defense)
+# Then rebuild any native modules that need compilation
+RUN npm ci --ignore-scripts && \
+    npm rebuild
+
+# Copy rest of source
+COPY . .
+
+# Build TypeScript
+RUN npm run build
+
+# Drop to non-root user
+USER mcp
+
+# MCP servers communicate via stdio
+ENTRYPOINT ["node", "dist/index.js"]

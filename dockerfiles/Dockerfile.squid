@@ -1,0 +1,11 @@
+FROM alpine:3.20
+
+RUN apk add --no-cache squid
+
+# Config and allowlists are volume-mounted at runtime
+# Ensure squid can read the config directory
+RUN chown -R squid:squid /etc/squid
+
+USER squid
+
+ENTRYPOINT ["squid", "-N", "-f", "/etc/squid/squid.conf"]

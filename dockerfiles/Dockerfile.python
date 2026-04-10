@@ -1,0 +1,24 @@
+FROM python:3.12-slim
+
+# Run as non-root for security
+RUN groupadd -r mcp && useradd -r -g mcp mcp
+
+WORKDIR /app
+
+# Copy all source (Python projects need source to resolve pyproject.toml deps)
+COPY . .
+
+# Install dependencies
+# Prefer pyproject.toml, fall back to requirements.txt
+RUN if [ -f pyproject.toml ]; then \
+        pip install --no-cache-dir .; \
+    elif [ -f requirements.txt ]; then \
+        pip install --no-cache-dir -r requirements.txt; \
+    fi
+
+# Drop to non-root user
+USER mcp
+
+# MCP servers communicate via stdio
+# Use CMD so servers can override the entrypoint
+CMD ["python", "-m", "server"]
